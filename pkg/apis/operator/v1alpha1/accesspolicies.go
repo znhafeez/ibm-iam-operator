@@ -1166,8 +1166,7 @@ def main():
         {'serviceName': 'kms', 'filePath': '/app/kms/action_role_kms.json'}]
     for service in serviceList:
         onboardToSecurity(service['serviceName'], service['filePath'])
-    #@posriniv - get back
-    #onboardServiceIdPolicies('tiller-service', '/app/tiller_serviceid_policies/tiller_serviceid_policies.json')
+    onboardServiceIdPolicies('tiller-service', '/app/tiller_serviceid_policies/tiller_serviceid_policies.json')
 if __name__ == "__main__":
 	main()
 `
