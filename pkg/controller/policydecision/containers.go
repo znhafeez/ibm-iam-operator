@@ -22,6 +22,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+// PolicyDecision Operand Image Tag. Update this tag for operator upgrade.
+const auditServiceImageTag = "3.4.0"
+const policyDecisionImageTag = "3.3.1"
+const initMongoImageTag = "3.3.2"
+
 var cpu10 = resource.NewMilliQuantity(10, resource.DecimalSI)            // 10m
 var cpu20 = resource.NewMilliQuantity(20, resource.DecimalSI)            // 20m
 var cpu100 = resource.NewMilliQuantity(100, resource.DecimalSI)          // 100m

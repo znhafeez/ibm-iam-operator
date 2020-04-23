@@ -39,6 +39,8 @@ import (
 )
 
 const secretWatcherDeploymentName = "secret-watcher"
+// SecretWatcher operand image tag. Update for operator upgrade. 
+const secretWatcherImageTagPostfix = "3.3.1"
 
 var trueVar bool = true
 var falseVar bool = false

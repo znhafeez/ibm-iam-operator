@@ -40,6 +40,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
+// SecurityOnboarding operand image tag. Update these values for operator upgrade. 
+const iamOnboardingImageTag = "3.3.1"
+const securityOnboardingImageTag = "3.3.1"
+const initAuthServiceImageTag = "3.3.2"
+const initIdentityProviderImageTag = "3.3.2"
+const initIdentityManagerImageTag = "3.3.2"
+const initTokenServiceImageTag = "3.3.2"
+const initPAPSpecImageTag = "3.3.2"
+
 var log = logf.Log.WithName("controller_securityonboarding")
 var runAsUser int64 = 21000
 var fsGroup int64 = 21000
@@ -376,7 +385,7 @@ func getSecurityOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Rec
 		{
 			Name:            "init-auth-service",
 			Command:         []string{"sh", "-c", "sleep 75; until curl -k -i -fsS https://platform-auth-service:9443/oidc/endpoint/OP/.well-known/openid-configuration | grep '200 OK'; do sleep 3; done;"},
-			Image:           instance.Spec.InitAuthService.ImageRegistry + "/" + instance.Spec.InitAuthService.ImageName + ":" + instance.Spec.InitAuthService.ImageTag,
+			Image:           instance.Spec.InitAuthService.ImageRegistry + "/" + instance.Spec.InitAuthService.ImageName + ":" + initAuthServiceImageTag,
 			ImagePullPolicy: corev1.PullPolicy("Always"),
 			SecurityContext: &corev1.SecurityContext{
 				Privileged:               &falseVar,
@@ -480,8 +489,7 @@ func getSecurityOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Rec
 		Containers: []corev1.Container{
 			{
 				Name:            "security-onboarding",
-				Image:           instance.Spec.ImageRegistry + "/" + instance.Spec.ImageName + ":" + instance.Spec.ImageTag,
-				ImagePullPolicy: corev1.PullPolicy("Always"),
+				Image:           instance.Spec.ImageRegistry + "/" + instance.Spec.ImageName + ":" + securityOnboardingImageTag,
 				Command:         []string{"python", "/app/scripts/onboard-script.py"},
 				SecurityContext: &corev1.SecurityContext{
 					Privileged:               &falseVar,
@@ -580,7 +588,7 @@ func getIAMOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Reconcil
 		{
 			Name:            "init-auth-service",
 			Command:         []string{"sh", "-c", "sleep 75; until curl -k -i -fsS https://platform-auth-service:9443/oidc/endpoint/OP/.well-known/openid-configuration | grep '200 OK'; do sleep 3; done;"},
-			Image:           instance.Spec.InitAuthService.ImageRegistry + "/" + instance.Spec.InitAuthService.ImageName + ":" + instance.Spec.InitAuthService.ImageTag,
+			Image:           instance.Spec.InitAuthService.ImageRegistry + "/" + instance.Spec.InitAuthService.ImageName + ":" + initAuthServiceImageTag,
 			ImagePullPolicy: corev1.PullPolicy("Always"),
 			SecurityContext: &corev1.SecurityContext{
 				Privileged:               &falseVar,
@@ -603,7 +611,7 @@ func getIAMOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Reconcil
 		{
 			Name:            "init-identity-provider",
 			Command:         []string{"sh", "-c", "until curl -k -i -fsS https://platform-identity-provider:4300 | grep '200 OK'; do sleep 3; done;"},
-			Image:           instance.Spec.InitIdentityProvider.ImageRegistry + "/" + instance.Spec.InitIdentityProvider.ImageName + ":" + instance.Spec.InitIdentityProvider.ImageTag,
+			Image:           instance.Spec.InitIdentityProvider.ImageRegistry + "/" + instance.Spec.InitIdentityProvider.ImageName + ":" + initIdentityProviderImageTag,
 			ImagePullPolicy: corev1.PullPolicy("Always"),
 			VolumeMounts: []corev1.VolumeMount{
 				{
@@ -632,7 +640,7 @@ func getIAMOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Reconcil
 		{
 			Name:            "init-identity-manager",
 			Command:         []string{"sh", "-c", "until curl -k -i -fsS https://platform-identity-management:4500 | grep '200 OK'; do sleep 3; done;"},
-			Image:           instance.Spec.InitIdentityManager.ImageRegistry + "/" + instance.Spec.InitIdentityManager.ImageName + ":" + instance.Spec.InitIdentityManager.ImageTag,
+			Image:           instance.Spec.InitIdentityManager.ImageRegistry + "/" + instance.Spec.InitIdentityManager.ImageName + ":" + initIdentityManagerImageTag,
 			ImagePullPolicy: corev1.PullPolicy("Always"),
 			VolumeMounts: []corev1.VolumeMount{
 				{
@@ -661,7 +669,7 @@ func getIAMOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Reconcil
 		{
 			Name:            "init-token-service",
 			Command:         []string{"sh", "-c", "until curl -k -i -fsS https://platform-auth-service:9443/iam/oidc/keys | grep '200 OK'; do sleep 3; done;"},
-			Image:           instance.Spec.InitTokenService.ImageRegistry + "/" + instance.Spec.InitTokenService.ImageName + ":" + instance.Spec.InitTokenService.ImageTag,
+			Image:           instance.Spec.InitTokenService.ImageRegistry + "/" + instance.Spec.InitTokenService.ImageName + ":" + initTokenServiceImageTag,
 			ImagePullPolicy: corev1.PullPolicy("Always"),
 			SecurityContext: &corev1.SecurityContext{
 				Privileged:               &falseVar,
@@ -684,7 +692,7 @@ func getIAMOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Reconcil
 		{
 			Name:            "init-pap",
 			Command:         []string{"sh", "-c", "until curl -k -i -fsS https://iam-pap:39001/v1/health | grep '200 OK'; do sleep 3; done;"},
-			Image:           instance.Spec.InitPAP.ImageRegistry + "/" + instance.Spec.InitPAP.ImageName + ":" + instance.Spec.InitPAP.ImageTag,
+			Image:           instance.Spec.InitPAP.ImageRegistry + "/" + instance.Spec.InitPAP.ImageName + ":" + initPAPSpecImageTag,
 			ImagePullPolicy: corev1.PullPolicy("Always"),
 			VolumeMounts: []corev1.VolumeMount{
 				{
@@ -991,7 +999,7 @@ func getIAMOnboardJob(instance *operatorv1alpha1.SecurityOnboarding, r *Reconcil
 			{
 				Name:            "iam-onboarding",
 				Command:         []string{"python", "/app/acs_utils/build/icp_iam_am_bootstrap.py"},
-				Image:           instance.Spec.IAMOnboarding.ImageRegistry + "/" + instance.Spec.IAMOnboarding.ImageName + ":" + instance.Spec.IAMOnboarding.ImageTag,
+				Image:           instance.Spec.IAMOnboarding.ImageRegistry + "/" + instance.Spec.IAMOnboarding.ImageName + ":" + iamOnboardingImageTag,
 				ImagePullPolicy: corev1.PullPolicy("Always"),
 				SecurityContext: &corev1.SecurityContext{
 					Privileged:               &falseVar,

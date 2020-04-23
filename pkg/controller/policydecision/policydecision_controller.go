@@ -503,9 +503,9 @@ func (r *ReconcilePolicyDecision) ingressForPolicyDecision(instance *operatorv1a
 func (r *ReconcilePolicyDecision) deploymentForPolicyDecision(instance *operatorv1alpha1.PolicyDecision) *appsv1.Deployment {
 
 	reqLogger := log.WithValues("deploymentForPolicyDecision", "Entry", "instance.Name", instance.Name)
-	pdpImage := instance.Spec.ImageRegistry + "/" + instance.Spec.ImageName + ":" + instance.Spec.ImageTag
-	mongoDBImage := instance.Spec.InitMongodb.ImageRegistry + "/" + instance.Spec.InitMongodb.ImageName + ":" + instance.Spec.InitMongodb.ImageTag
-	auditImage := instance.Spec.AuditService.ImageRegistry + "/" + instance.Spec.AuditService.ImageName + ":" + instance.Spec.AuditService.ImageTag
+	pdpImage := instance.Spec.ImageRegistry + "/" + instance.Spec.ImageName + ":" + policyDecisionImageTag
+	mongoDBImage := instance.Spec.InitMongodb.ImageRegistry + "/" + instance.Spec.InitMongodb.ImageName + ":" + initMongoImageTag
+	auditImage := instance.Spec.AuditService.ImageRegistry + "/" + instance.Spec.AuditService.ImageName + ":" + auditServiceImageTag
 	replicas := instance.Spec.Replicas
 	journalPath := instance.Spec.AuditService.JournalPath
 

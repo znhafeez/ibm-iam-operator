@@ -707,8 +707,8 @@ func (r *ReconcilePap) ingressForPap(instance *operatorv1alpha1.Pap) *net.Ingres
 func (r *ReconcilePap) deploymentForPap(instance *operatorv1alpha1.Pap) *appsv1.Deployment {
 
 	reqLogger := log.WithValues("deploymentForPap", "Entry", "instance.Name", instance.Name)
-	papImage := instance.Spec.PapService.ImageRegistry + "/" + instance.Spec.PapService.ImageName + ":" + instance.Spec.PapService.ImageTag
-	auditImage := instance.Spec.AuditService.ImageRegistry + "/" + instance.Spec.AuditService.ImageName + ":" + instance.Spec.AuditService.ImageTag
+	papImage := instance.Spec.PapService.ImageRegistry + "/" + instance.Spec.PapService.ImageName + ":" + auditServiceImageTag
+	auditImage := instance.Spec.AuditService.ImageRegistry + "/" + instance.Spec.AuditService.ImageName + ":" + papServiceImageTag
 	replicas := instance.Spec.Replicas
 	journalPath := instance.Spec.AuditService.JournalPath
 

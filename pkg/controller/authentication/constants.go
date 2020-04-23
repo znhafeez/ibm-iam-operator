@@ -16,6 +16,14 @@
 
 package authentication
 
+// Authentication operand image tag
+const auditImageTag = "3.4.0"
+const authImageTag = "3.3.2"
+const identityProviderImageTag = "3.3.2"
+const identityManagerImageTag = "3.3.3"
+const initMongoImageTag = "3.3.2"
+const clientRegistrationImageTag = "3.3.2"
+
 const registerClientScript = `#!/bin/sh
 HTTP_CODE=""
 while true
