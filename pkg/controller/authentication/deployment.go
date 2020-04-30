@@ -36,7 +36,15 @@ func (r *ReconcileAuthentication) handleDeployment(instance *operatorv1alpha1.Au
 	// Check if this Deployment already exists
 	deployment := "auth-idp"
 	reqLogger := log.WithValues("Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
+	reqLogger.Info("******* DIS THE INSTANCE ********", instance)
+	reqLogger.Info("------ SCHEME??? -------- ", r.scheme)
+	expectedDeployment := generateDeploymentObject(instance, r.scheme, deployment)
+	foundDeployment := &appsv1.Deployment{}
+	reqLogger.Info("!?!?!?!?!?! FOUND DEPLOYYYYY !?!?!??!?!?: ", foundDeployment)
+	// If the deployment exists, check that it matches the expected deployment value
+
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: deployment, Namespace: instance.Namespace}, currentDeployment)
+	// Create a Deployment object if it does not exist
 	if err != nil && errors.IsNotFound(err) {
 		reqLogger.Info("Creating a new Deployment", "Deployment.Namespace", instance.Namespace, "Deployment.Name", deployment)
 		newDeployment := generateDeploymentObject(instance, r.scheme, deployment)
@@ -48,8 +56,10 @@ func (r *ReconcileAuthentication) handleDeployment(instance *operatorv1alpha1.Au
 		*requeueResult = true
 	} else if err != nil {
 		return err
+	} else if !reflect.DeepEqual(expectedDeployment, &appsv1.Deployment{}) {
+		// update the components that changed in the deployment
 	}
-
+	
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(instance.Namespace),
@@ -87,7 +97,7 @@ func getPodNames(pods []corev1.Pod) []string {
 	}
 	return podNames
 }
-// Need to update this bad boiii
+
 func generateDeploymentObject(instance *operatorv1alpha1.Authentication, scheme *runtime.Scheme, deployment string) *appsv1.Deployment {
 	reqLogger := log.WithValues("deploymentForAuthentication", "Entry", "instance.Name", instance.Name)
 	authServiceImage := instance.Spec.AuthService.ImageRegistry + "/" + instance.Spec.AuthService.ImageName + ":" + authImageTag
