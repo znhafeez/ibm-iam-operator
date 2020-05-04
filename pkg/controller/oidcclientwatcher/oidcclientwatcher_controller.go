@@ -19,6 +19,7 @@ package oidcclientwatcher
 import (
 	"context"
 	operatorv1alpha1 "github.com/IBM/ibm-iam-operator/pkg/apis/operator/v1alpha1"
+	res "github.com/ibm/ibm-metering-operator/pkg/resources"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -189,6 +190,15 @@ func (r *ReconcileOIDCClientWatcher) Reconcile(request reconcile.Request) (recon
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func compareDeployments(expectedDeployment *appsv1.Deployment, currentDeployment *appsv1.Deployment) bool {
+	return !reflect.DeepEqual(currentDeployment.Spec.Template.Spec.Volumes, expectedDeployment.Spec.Template.Spec.Volumes) ||
+	len(currentDeployment.Spec.Template.Spec.Tolerations) != len(expectedDeployment.Spec.Template.Spec.Tolerations) ||
+	len(currentDeployment.Spec.Template.Spec.Containers) != len(expectedDeployment.Spec.Template.Spec.Containers) ||
+	len(currentDeployment.Spec.Template.Spec.InitContainers) != len(expectedDeployment.Spec.Template.Spec.InitContainers) ||
+	!reflect.DeepEqual(currentDeployment.Spec.Template.Spec.SecurityContext, expectedDeployment.Spec.Template.Spec.SecurityContext) ||
+	!reflect.DeepEqual(currentDeployment.Spec.Template.Spec.ServiceAccountName, expectedDeployment.Spec.Template.Spec.ServiceAccountName)
 }
 
 func (r *ReconcileOIDCClientWatcher) handleClusterRole(instance *operatorv1alpha1.OIDCClientWatcher, currentClusterRole *rbacv1.ClusterRole) (reconcile.Result, error) {

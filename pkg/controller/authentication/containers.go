@@ -1036,7 +1036,4 @@ func buildIdpEnvVars(envVarList []string) []corev1.EnvVar {
 	return envVars
 }
 
-func compareContainers(currentPod *corev1.PodSpec, expectedPod *corev1.PodSpec) bool {
-	// 
-	return false
-}
+

@@ -17,9 +17,9 @@
 package authentication
 
 import (
-	"fmt"
 	"context"
 	operatorv1alpha1 "github.com/IBM/ibm-iam-operator/pkg/apis/operator/v1alpha1"
+	res "github.com/ibm/ibm-metering-operator/pkg/resources"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	gorun "runtime"
@@ -39,14 +39,6 @@ func (r *ReconcileAuthentication) handleDeployment(instance *operatorv1alpha1.Au
 	reqLogger := log.WithValues("Instance.Namespace", instance.Namespace, "Instance.Name", instance.Name)
 	expectedDeployment := generateDeploymentObject(instance, r.scheme, deployment)
 	currentDeployment = &appsv1.Deployment{}
-	
-	fmt.Println("tags::::: ", authImageTag)
-
-	fmt.Println("PRINTING OUT THE CONTAINERS!!!!!!")
-
-	containers := &corev1.PodSpec{}  
-	fmt.Println(&corev1.PodSpec{})
-	fmt.Println(containers.Containers)
 
 	err := r.client.Get(context.TODO(), types.NamespacedName{Name: deployment, Namespace: instance.Namespace}, currentDeployment)
 	// Create a Deployment object if it does not exist
@@ -60,7 +52,7 @@ func (r *ReconcileAuthentication) handleDeployment(instance *operatorv1alpha1.Au
 			}
 			// Deployment created successfully - return and requeue
 			*requeueResult = true
-		} else if compareDeployments(expectedDeployment, currentDeployment) {
+		} else if res.compareDeployments(expectedDeployment, currentDeployment) || res.compareContainers(&currentDeployment.Spec.Template.Spec, &expectedDeployment.Spec.Template.Spec) {
 			// Update Deployment
 			reqLogger.Info("Updating an existing Deployment", "Deployment.Namespace", currentDeployment.Namespace, "Deployment.Name", currentDeployment.Name)
 			err = r.client.Update(context.TODO(), currentDeployment)
@@ -111,15 +103,6 @@ func getPodNames(pods []corev1.Pod) []string {
 		reqLogger.Info("CS??? pod name=" + pod.Name)
 	}
 	return podNames
-}
-
-func compareDeployments(expectedDeployment *appsv1.Deployment, currentDeployment *appsv1.Deployment) bool {
-	return !reflect.DeepEqual(currentDeployment.Spec.Template.Spec.Volumes, expectedDeployment.Spec.Template.Spec.Volumes) ||
-	len(currentDeployment.Spec.Template.Spec.Tolerations) != len(expectedDeployment.Spec.Template.Spec.Tolerations) ||
-	len(currentDeployment.Spec.Template.Spec.Containers) != len(expectedDeployment.Spec.Template.Spec.Containers) ||
-	len(currentDeployment.Spec.Template.Spec.InitContainers) != len(expectedDeployment.Spec.Template.Spec.InitContainers) ||
-	!reflect.DeepEqual(currentDeployment.Spec.Template.Spec.SecurityContext, expectedDeployment.Spec.Template.Spec.SecurityContext) ||
-	!reflect.DeepEqual(currentDeployment.Spec.Template.Spec.ServiceAccountName, expectedDeployment.Spec.Template.Spec.ServiceAccountName)
 }
 
 func generateDeploymentObject(instance *operatorv1alpha1.Authentication, scheme *runtime.Scheme, deployment string) *appsv1.Deployment {
